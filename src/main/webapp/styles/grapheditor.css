@@ -1,5 +1,5 @@
 :root {
-	--panel-color: #f1f3f4;
+	--panel-color: #ffffff;
 	--border-color: #dadce0;
 	--text-color: #707070;
 }
@@ -990,7 +990,7 @@ table.geProperties tr td {
 	height:21px;
 }
 .gePropHeader, .gePropRow {
-	border: 1px solid #e9e9e9;	
+	border: 1px solid #e9e9e9;
 }
 .gePropRowDark {
 	border: 1px solid #4472C4;
@@ -1145,7 +1145,7 @@ table.geProperties tr td {
     color: #3D72AD;
     cursor: pointer;
 }
-.geTempDlgCancelBtn:active, .geTempDlgCreateBtn:active, 
+.geTempDlgCancelBtn:active, .geTempDlgCreateBtn:active,
 .geTempDlgOpenBtn:active, .geTempDlgShowAllBtn:active {
 	transform: translateY(2px);
 }
@@ -1218,7 +1218,7 @@ table.geProperties tr td {
 	padding-left: 9px;
 	box-sizing: border-box;
 	overflow-y: auto;
-	overflow-x: hidden; 
+	overflow-x: hidden;
 }
 .geTempDlgNewDiagramCatFooter {
 	width: 100%;
@@ -1303,7 +1303,7 @@ table.geProperties tr td {
 .geTempDlgDiagramsListBtns {
 	float: right;
 	margin-top: -9px;
-}		
+}
 .geTempDlgRadioBtn {
 	box-sizing: border-box;
 	border: 1px solid #CCCCCC;
@@ -1537,7 +1537,7 @@ table.geProperties tr td {
 	border: 1px solid whiteSmoke;
 	height: 100%;
 	margin-bottom: 10px;
-	overflow: auto;	
+	overflow: auto;
 }
 
 .geCommentsToolbar {
@@ -1558,7 +1558,7 @@ table.geProperties tr td {
 	overflow: auto;
 	left: 0px;
 	right: 0px;
-	top: 0px;	
+	top: 0px;
 }
 
 .geCommentContainer {
@@ -1665,12 +1665,12 @@ table.geProperties tr td {
 .geCommentAction:before {
 	content: "\2022";
 	padding: 5px;
-} 
+}
 
 .geCommentAction:first-child:before {
 	content: "";
 	padding: 0;
-} 
+}
 
 .geCommentActionLnk {
 	cursor: pointer;
@@ -1694,7 +1694,7 @@ table.geProperties tr td {
 	right: 5px;
 }
 
-.geAspectDlgListItem 
+.geAspectDlgListItem
 {
 	width : 120px;
 	height : 120px;
@@ -1710,7 +1710,7 @@ table.geProperties tr td {
 	border: 3px solid #c5c5c5;
 }
 
-.geAspectDlgListItemSelected 
+.geAspectDlgListItemSelected
 {
 	border: 3px solid #3b73af;
 }
@@ -2003,7 +2003,7 @@ table.geProperties tr td {
 }
 
 .geTempTreeCaret-down::before {
-  transform: rotate(90deg);  
+  transform: rotate(90deg);
 }
 
 .geTempTreeNested {
