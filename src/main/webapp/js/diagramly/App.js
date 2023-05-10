@@ -1543,10 +1543,6 @@ App.prototype.init = function () {
 
             if (urlParams['embed'] != '1') {
                 this.icon.style.cursor = 'pointer';
-
-                mxEvent.addListener(this.icon, 'click', mxUtils.bind(this, function (evt) {
-                    this.appIconClicked(evt);
-                }));
             }
 
             this.menubar.container.insertBefore(this.icon, this.menubar.container.firstChild);
@@ -2268,25 +2264,6 @@ App.prototype.createBackground = function () {
         // and should not be modified if mode is undefined
         if (this.mode != null) {
             Editor.useLocalStorage = this.mode == App.MODE_BROWSER;
-        }
-
-        if (this.appIcon != null) {
-            var file = this.getCurrentFile();
-            mode = (file != null) ? file.getMode() : mode;
-
-            if (mode == App.MODE_GOOGLE) {
-                this.appIcon.setAttribute('title', mxResources.get('openIt', [mxResources.get('googleDrive')]));
-                this.appIcon.style.cursor = 'pointer';
-            } else if (mode == App.MODE_DROPBOX) {
-                this.appIcon.setAttribute('title', mxResources.get('openIt', [mxResources.get('dropbox')]));
-                this.appIcon.style.cursor = 'pointer';
-            } else if (mode == App.MODE_ONEDRIVE) {
-                this.appIcon.setAttribute('title', mxResources.get('openIt', [mxResources.get('oneDrive')]));
-                this.appIcon.style.cursor = 'pointer';
-            } else {
-                this.appIcon.removeAttribute('title');
-                this.appIcon.style.cursor = (mode == App.MODE_DEVICE) ? 'pointer' : 'default';
-            }
         }
 
         if (remember) {
@@ -5625,13 +5602,12 @@ App.prototype.toggleCompactMode = function (visible) {
 
     if (visible) {
         this.menubar.container.style.position = 'absolute';
-        this.menubar.container.style.paddingLeft = '59px';
+        this.menubar.container.style.paddingLeft = '0px';
         this.menubar.container.style.paddingTop = '';
         this.menubar.container.style.paddingBottom = '';
         this.menubar.container.style.top = '34px';
         this.toolbar.container.style.paddingLeft = '16px';
         this.buttonContainer.style.visibility = 'visible';
-        this.appIcon.style.display = 'block';
         this.fnameWrapper.style.display = 'block';
         this.fnameWrapper.style.visibility = 'visible';
         this.menubarHeight = App.prototype.menubarHeight;
@@ -5642,7 +5618,6 @@ App.prototype.toggleCompactMode = function (visible) {
         this.menubar.container.style.paddingBottom = '0px';
         this.menubar.container.style.top = '0px';
         this.toolbar.container.style.paddingLeft = '8px';
-        this.appIcon.style.display = 'none';
         this.fnameWrapper.style.display = 'none';
         this.fnameWrapper.style.visibility = 'hidden';
         this.menubarHeight = EditorUi.prototype.menubarHeight;
