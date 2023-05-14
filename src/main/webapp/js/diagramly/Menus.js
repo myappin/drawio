@@ -2753,7 +2753,7 @@
             }, parent, null, isGraphEnabled());
 
             if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min') {
-                this.addMenuItems(menu, ['-', 'createShape', 'editDiagram'], parent);
+                this.addMenuItems(menu, ['-', 'createShape'], parent);
             }
         })));
 
@@ -3354,6 +3354,11 @@
         this.put('diagram', new Menu(mxUtils.bind(this, function (menu, parent) {
             var file = editorUi.getCurrentFile();
 
+            if (Editor.currentTheme != 'simple') {
+                editorUi.menus.addSubmenu('extras', menu, parent, mxResources.get('settings'));
+                menu.addSeparator(parent);
+            }
+
             // Compatiblity code for live UI switch and static UI
             var sketchTheme = Editor.currentTheme == 'simple' ||
                 Editor.currentTheme == 'sketch';
@@ -3438,6 +3443,11 @@
             }
 
             menu.addSeparator(parent);
+
+            if (Editor.currentTheme == 'simple') {
+                editorUi.menus.addSubmenu('extras', menu, parent, mxResources.get('settings'));
+                menu.addSeparator(parent);
+            }
 
             if (urlParams['embed'] == '1') {
                 if (urlParams['noSaveBtn'] != '1' &&
