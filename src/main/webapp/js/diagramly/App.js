@@ -3012,78 +3012,6 @@ App.prototype.showSplash = function (force) {
 };
 
 /**
- * Translates this point by the given vector.
- *
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-App.prototype.addLanguageMenu = function (elt, addLabel, right) {
-    var img = null;
-    var langMenu = this.menus.get('language');
-
-    if (langMenu != null) {
-        img = document.createElement('div');
-        img.setAttribute('title', mxResources.get('language'));
-
-        img.className = (Editor.currentTheme != 'atlas') ? 'geIcon geAdaptiveAsset' : '';
-        img.style.backgroundImage = 'url(' + Editor.globeImage + ')';
-        img.style.backgroundPosition = 'right center';
-        img.style.backgroundRepeat = 'no-repeat';
-        img.style.backgroundSize = '19px 19px';
-        img.style.width = '19px';
-        img.style.height = '19px';
-        mxUtils.setOpacity(img, 40);
-
-        img.style.position = 'absolute';
-        img.style.cursor = 'pointer';
-        img.style.bottom = '20px';
-        img.style.right = (right != null) ? right : '22px';
-
-        if (addLabel) {
-            img.style.direction = 'rtl';
-            img.style.textAlign = 'right';
-            img.style.right = (right != null) ? right : '24px';
-
-            var label = document.createElement('span');
-            label.style.display = 'inline-block';
-            label.style.fontSize = '12px';
-            label.style.margin = '2px 24px 0 0';
-            label.style.userSelect = 'none';
-
-            mxUtils.write(label, mxResources.get('language'));
-            img.appendChild(label);
-
-            label.className = (Editor.currentTheme != 'atlas') ? 'geAdaptiveAsset' : '';
-        }
-
-        mxEvent.addListener(img, 'click', mxUtils.bind(this, function (evt) {
-            this.editor.graph.popupMenuHandler.hideMenu();
-            var menu = new mxPopupMenu(this.menus.get('language').funct);
-            menu.div.className += ' geMenubarMenu';
-            menu.smartSeparators = true;
-            menu.showDisabled = true;
-            menu.autoExpand = true;
-
-            // Disables autoexpand and destroys menu when hidden
-            menu.hideMenu = mxUtils.bind(this, function () {
-                mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
-                menu.destroy();
-            });
-
-            var offset = mxUtils.getOffset(img);
-            menu.popup(offset.x, offset.y + img.offsetHeight, null, evt);
-
-            // Allows hiding by clicking on document
-            this.setCurrentMenu(menu);
-        }));
-
-        elt.appendChild(img);
-    }
-
-    return img;
-};
-
-/**
  * Loads the given file handle as a local file.
  */
 App.prototype.loadFileSystemEntry = function (fileHandle, success, error) {
@@ -5407,7 +5335,7 @@ App.prototype.updateHeader = function () {
         this.fnameWrapper = document.createElement('div');
         this.fnameWrapper.style.position = 'absolute';
         this.fnameWrapper.style.right = '120px';
-        this.fnameWrapper.style.left = '3px';
+        this.fnameWrapper.style.left = '40px';
         this.fnameWrapper.style.top = '9px';
         this.fnameWrapper.style.height = '26px';
         this.fnameWrapper.style.display = 'none';

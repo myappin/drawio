@@ -924,16 +924,6 @@
                     });
                 }]];
 
-                if (!editorUi.isOfflineApp() && isLocalStorage && editorUi.mode != App.MODE_ATLAS) {
-                    var pluginsAction = editorUi.actions.get('plugins');
-
-                    if (pluginsAction != null && (Editor.currentTheme == 'sketch' ||
-                        Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')) {
-                        // TODO: Show change message only when plugins have changed
-                        buttons.push([mxResources.get('plugins'), pluginsAction.funct]);
-                    }
-                }
-
                 if (!EditorUi.isElectronApp) {
                     buttons.push([mxResources.get('link'), function (evt, input) {
                         if (input.value.length > 0) {
@@ -981,107 +971,6 @@
                         }
                     });
             });
-        }
-
-        // Adds language menu to options only if localStorage is available for
-        // storing the choice. We do not want to use cookies for older browsers.
-        // Note that the URL param lang=XX is available for setting the language
-        // in older browsers. URL param has precedence over the saved setting.
-        if (mxClient.IS_CHROMEAPP || isLocalStorage) {
-            this.put('language', new Menu(mxUtils.bind(this, function (menu, parent) {
-                var addLangItem = mxUtils.bind(this, function (id) {
-                    var lang = (id == '') ? mxResources.get('automatic') : mxLanguageMap[id];
-                    var item = null;
-
-                    if (lang != '') {
-                        item = menu.addItem(lang, null, mxUtils.bind(this, function () {
-                            editorUi.setAndPersistLanguage(id);
-                            editorUi.alert(mxResources.get('restartForChangeRequired'));
-                        }), parent);
-
-                        if (id == mxLanguage || (id == '' && mxLanguage == null)) {
-                            menu.addCheckmark(item, Editor.checkmarkImage);
-                        }
-                    }
-
-                    return item;
-                });
-
-                addLangItem('');
-                menu.addSeparator(parent);
-
-                // LATER: Sort menu by language name
-                for (var langId in mxLanguageMap) {
-                    addLangItem(langId);
-                }
-            })));
-
-            // Extends the menubar with the language menu
-            var menusCreateMenuBar = Menus.prototype.createMenubar;
-            Menus.prototype.createMenubar = function (container) {
-                var menubar = menusCreateMenuBar.apply(this, arguments);
-
-                if ((urlParams['embed'] != '1' || urlParams['atlas'] == '1') &&
-                    menubar != null && Editor.enableSimpleTheme &&
-                    editorUi.getServiceName() != 'atlassian') {
-                    var themeMenu = this.get('appearance');
-
-                    if (themeMenu != null) {
-                        var elt = menubar.addMenu('', themeMenu.funct);
-                        elt.setAttribute('title', mxResources.get('appearance'));
-                        elt.className = 'geToolbarButton geAdaptiveAsset';
-                        elt.style.backgroundPosition = 'center center';
-                        elt.style.backgroundRepeat = 'no-repeat';
-                        elt.style.backgroundSize = '100% 100%';
-                        elt.style.display = 'inline-block';
-                        elt.style.cursor = 'pointer';
-                        elt.style.zIndex = '1';
-
-                        // Depends on theme
-                        elt.style.position = 'absolute';
-                        elt.style.height = '18px';
-                        elt.style.width = '18px';
-
-                        if (Editor.currentTheme == 'atlas') {
-                            elt.style.filter = 'invert(100%)';
-                            elt.style.right = '11px';
-                            elt.style.top = '10px';
-                        } else {
-                            elt.style.right = '10px';
-                            elt.style.top = '5px';
-                        }
-
-                        document.body.appendChild(elt);
-                        menubar.langIcon = elt;
-
-                        var updateThemeElement = mxUtils.bind(this, function () {
-                            var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-
-                            elt.style.display = (Editor.currentTheme == 'atlas' || Editor.currentTheme == 'min' ||
-                                Editor.currentTheme == 'sketch') ? 'none' : '';
-
-                            if (Editor.currentTheme == 'simple') {
-                                if (iw < 750) {
-                                    elt.style.backgroundImage = 'url(' + Editor.thinDoubleArrowRightImage + ')';
-                                } else {
-                                    elt.style.backgroundImage = 'url(' + ((Editor.isDarkMode()) ?
-                                        Editor.thinDarkImage : Editor.thinLightImage) + ')';
-                                }
-                            } else {
-                                elt.style.backgroundImage = 'url(' + ((Editor.isDarkMode()) ?
-                                    Editor.darkModeImage : Editor.lightModeImage) + ')';
-                            }
-                        });
-
-                        this.editorUi.addListener('currentThemeChanged', updateThemeElement);
-                        this.editorUi.addListener('darkModeChanged', updateThemeElement);
-                        mxEvent.addListener(window, 'resize', updateThemeElement);
-                        updateThemeElement();
-                    }
-                }
-
-                return menubar;
-            };
         }
 
         editorUi.customLayoutConfig = [{
@@ -2036,24 +1925,6 @@
                 });
             }
         });
-
-        // Adds plugins menu item only if localStorage is available for storing the plugins
-        if (isLocalStorage || mxClient.IS_CHROMEAPP) {
-            var action = editorUi.actions.addAction('scratchpad', function () {
-                editorUi.toggleScratchpad();
-            });
-
-            action.setToggleAction(true);
-            action.setSelectedCallback(function () {
-                return editorUi.scratchpad != null;
-            });
-
-            if (urlParams['plugins'] != '0') {
-                editorUi.actions.addAction('plugins...', function () {
-                    editorUi.showDialog(new PluginsDialog(editorUi).container, 380, 240, true, false);
-                });
-            }
-        }
 
         var action = editorUi.actions.addAction('search', function () {
             var visible = editorUi.sidebar.isEntryVisible('search');
@@ -3464,174 +3335,6 @@
             });
         }
 
-        var langMenu = this.get('language');
-
-        this.put('extras', new Menu(mxUtils.bind(this, function (menu, parent) {
-            // Compatiblity code for live UI switch and static UI
-            var sketchTheme = Editor.currentTheme == 'simple' || urlParams['sketch'] == '1';
-
-            if (sketchTheme || uiTheme == 'min') {
-                if ((urlParams['embed'] != '1' || urlParams['atlas'] == '1') &&
-                    urlParams['extAuth'] != '1' && editorUi.mode != App.MODE_ATLAS &&
-                    urlParams['embedInline'] != '1' && (Editor.isDarkMode() ||
-                        (!mxClient.IS_IE && !mxClient.IS_IE11))) {
-                    editorUi.menus.addSubmenu('appearance', menu, parent);
-                }
-
-                if (urlParams['embed'] != '1' && urlParams['extAuth'] != '1' &&
-                    editorUi.mode != App.MODE_ATLAS) {
-                    editorUi.menus.addSubmenu('theme', menu, parent);
-                }
-
-                menu.addSeparator(parent);
-
-                if (langMenu != null && (urlParams['embed'] != '1' || urlParams['lang'] == null)) {
-                    editorUi.menus.addSubmenu('language', menu, parent);
-                }
-
-                editorUi.menus.addSubmenu('units', menu, parent);
-                editorUi.menus.addMenuItems(menu, ['-', 'copyConnect',
-                    'collapseExpand', 'tooltips', '-'], parent);
-
-                var file = editorUi.getCurrentFile();
-
-                if (Editor.currentTheme != 'simple') {
-                    if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported()) {
-                        this.addMenuItems(menu, ['showRemoteCursors'], parent);
-                    }
-
-                    editorUi.menus.addMenuItems(menu, ['ruler', '-'], parent);
-                }
-
-                if (EditorUi.isElectronApp) {
-                    editorUi.menus.addMenuItems(menu, ['-', 'spellCheck', 'autoBkp', 'drafts', '-'], parent);
-                }
-
-                this.addSubmenu('diagramLanguage', menu, parent);
-                menu.addSeparator(parent);
-
-                if (editorUi.mode != App.MODE_ATLAS) {
-                    editorUi.menus.addMenuItem(menu, 'configuration', parent);
-                }
-
-                // Adds trailing separator in case new plugin entries are added
-                menu.addSeparator(parent);
-            } else {
-                if (urlParams['embed'] != '1' || urlParams['lang'] == null) {
-                    this.addSubmenu('language', menu, parent);
-                }
-
-                if ((urlParams['embed'] != '1' || urlParams['atlas'] == '1') &&
-                    Editor.currentTheme != 'atlas' && (Editor.isDarkMode() ||
-                        (!mxClient.IS_IE && !mxClient.IS_IE11))) {
-                    editorUi.menus.addSubmenu('appearance', menu, parent);
-                }
-
-                if (urlParams['embed'] != '1' && urlParams['extAuth'] != '1' &&
-                    editorUi.mode != App.MODE_ATLAS) {
-                    this.addSubmenu('theme', menu, parent);
-                }
-
-                menu.addSeparator(parent);
-
-                if (typeof (MathJax) !== 'undefined') {
-                    var item = this.addMenuItem(menu, 'mathematicalTypesetting', parent);
-
-                    if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) {
-                        this.addLinkToItem(item, 'https://www.drawio.com/doc/faq/math-typesetting');
-                    }
-                }
-
-                if (EditorUi.isElectronApp) {
-                    this.addMenuItems(menu, ['spellCheck', 'autoBkp', 'drafts', '-'], parent);
-                }
-
-                this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-'], parent);
-
-                if (urlParams['embed'] != '1') {
-                    var file = editorUi.getCurrentFile();
-
-                    if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported()) {
-                        this.addMenuItems(menu, ['showRemoteCursors', 'shareCursor'], parent);
-                    }
-
-                    this.addMenuItems(menu, ['autosave'], parent);
-                }
-
-                menu.addSeparator(parent);
-
-                if (!editorUi.isOfflineApp() && isLocalStorage) {
-                    this.addMenuItem(menu, 'plugins', parent);
-                }
-
-                this.addMenuItems(menu, ['-', 'editDiagram'], parent);
-                this.addSubmenu('diagramLanguage', menu, parent);
-                menu.addSeparator(parent);
-
-                if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP)) {
-                    this.addMenuItems(menu, ['showStartScreen'], parent);
-                }
-
-                this.addMenuItems(menu, ['configuration'], parent);
-
-                // Adds trailing separator in case new plugin entries are added
-                menu.addSeparator(parent);
-
-                if (urlParams['newTempDlg'] == '1') {
-                    editorUi.actions.addAction('templates', function () {
-                        function driveObjToTempDlg(item) {
-                            return {
-                                id: item.id,
-                                isExt: true,
-                                url: item.downloadUrl,
-                                title: item.title,
-                                imgUrl: item.thumbnailLink,
-                                changedBy: item.lastModifyingUserName,
-                                lastModifiedOn: item.modifiedDate
-                            }
-                        };
-
-                        var tempDlg = new TemplatesDialog(editorUi, function (xml) {
-                                console.log(arguments)
-                            }, null,
-                            null, null, 'user', function (callback, error, username) {
-                                var oneWeek = new Date();
-                                oneWeek.setDate(oneWeek.getDate() - 7);
-
-                                editorUi.drive.listFiles(null, oneWeek, username ? true : false, function (resp) {
-                                    var results = [];
-
-                                    for (var i = 0; i < resp.items.length; i++) {
-                                        results.push(driveObjToTempDlg(resp.items[i]));
-                                    }
-
-                                    callback(results);
-                                }, error)
-                            }, function (str, callback, error, username) {
-                                editorUi.drive.listFiles(str, null, username ? true : false, function (resp) {
-                                    var results = [];
-
-                                    for (var i = 0; i < resp.items.length; i++) {
-                                        results.push(driveObjToTempDlg(resp.items[i]));
-                                    }
-
-                                    callback(results);
-                                }, error)
-                            }, function (obj, callback, error) {
-                                editorUi.drive.getFile(obj.id, function (file) {
-                                    callback(file.data);
-                                }, error);
-                            }, null, function (callback) {
-                                callback({'Test': []}, 1);
-                            }, true, false);
-
-                        editorUi.showDialog(tempDlg.container, window.innerWidth, window.innerHeight, true, false, null, false, true);
-                    });
-                    this.addMenuItem(menu, 'templates', parent);
-                }
-            }
-        })));
-
         this.put('movePage', new Menu(mxUtils.bind(this, function (menu, parent) {
             var current = editorUi.getSelectedPageIndex();
 
@@ -3648,35 +3351,8 @@
             }
         })));
 
-        this.put('share', new Menu(mxUtils.bind(this, function (menu, parent) {
-            if (!editorUi.isStandaloneApp()) {
-                var err = (editorUi.isOffline(true)) ?
-                    mxResources.get('offline') :
-                    editorUi.getNetworkStatus();
-
-                if (err != null) {
-                    menu.addItem(err, null, null, parent, null, false);
-                    menu.addSeparator(parent);
-                }
-
-                editorUi.menus.addMenuItems(menu, ['share'], parent);
-            }
-
-            this.addMenuItem(menu, 'publishLink', parent, null,
-                null, mxResources.get('publish') + '...');
-
-            if (editorUi.getMainUser() != null) {
-                this.addMenuItems(menu, ['accounts'], parent);
-            }
-        })));
-
         this.put('diagram', new Menu(mxUtils.bind(this, function (menu, parent) {
             var file = editorUi.getCurrentFile();
-
-            if (Editor.currentTheme != 'simple') {
-                editorUi.menus.addSubmenu('extras', menu, parent, mxResources.get('settings'));
-                menu.addSeparator(parent);
-            }
 
             // Compatiblity code for live UI switch and static UI
             var sketchTheme = Editor.currentTheme == 'simple' ||
@@ -3762,11 +3438,6 @@
             }
 
             menu.addSeparator(parent);
-
-            if (Editor.currentTheme == 'simple') {
-                editorUi.menus.addSubmenu('extras', menu, parent, mxResources.get('settings'));
-                menu.addSeparator(parent);
-            }
 
             if (urlParams['embed'] == '1') {
                 if (urlParams['noSaveBtn'] != '1' &&
